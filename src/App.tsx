@@ -31,39 +31,51 @@ import { Case, Challenge, Choice, SimulationState } from './types';
 import { cn } from './lib/utils';
 
 // --- Gemini API Setup ---
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+const getAi = () => {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === 'undefined' || apiKey === 'MY_GEMINI_API_KEY') {
+      throw new Error('GEMINI_API_KEY is not configured.');
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+};
 
 const generateNewCases = async (): Promise<Case[]> => {
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: "Generate 2 unique and diverse patient case studies for a weight management coach. One should be a younger adult and one an older adult. Ensure their lifestyles and goals are realistic and varied. For each, providing a 'photoUrl' that uses 'https://loremflickr.com/600/600/person,portrait,' followed by a specific keyword like 'man-coding' or 'woman-teaching'.",
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          required: ["id", "name", "age", "initialWeight", "energy", "mood", "lifestyle", "photoUrl", "goal"],
-          properties: {
-            id: { type: Type.STRING },
-            name: { type: Type.STRING },
-            age: { type: Type.NUMBER },
-            initialWeight: { type: Type.NUMBER, description: "Weight in kg, range 60-120" },
-            energy: { type: Type.NUMBER, description: "0-100 initial energy" },
-            mood: { type: Type.NUMBER, description: "0-100 initial mood" },
-            lifestyle: { type: Type.STRING },
-            photoUrl: { type: Type.STRING, description: "URL pointing to a realistic portrait photo" },
-            goal: { type: Type.STRING }
+  try {
+    const ai = getAi();
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: "Generate 2 unique and diverse patient case studies for a weight management coach. One should be a younger adult and one an older adult. Ensure their lifestyles and goals are realistic and varied. For each, providing a 'photoUrl' that uses 'https://loremflickr.com/600/600/person,portrait,' followed by a specific keyword like 'man-coding' or 'woman-teaching'.",
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            required: ["id", "name", "age", "initialWeight", "energy", "mood", "lifestyle", "photoUrl", "goal"],
+            properties: {
+              id: { type: Type.STRING },
+              name: { type: Type.STRING },
+              age: { type: Type.NUMBER },
+              initialWeight: { type: Type.NUMBER, description: "Weight in kg, range 60-120" },
+              energy: { type: Type.NUMBER, description: "0-100 initial energy" },
+              mood: { type: Type.NUMBER, description: "0-100 initial mood" },
+              lifestyle: { type: Type.STRING },
+              photoUrl: { type: Type.STRING, description: "URL pointing to a realistic portrait photo" },
+              goal: { type: Type.STRING }
+            }
           }
         }
       }
-    }
-  });
+    });
 
-  try {
     return JSON.parse(response.text);
   } catch (e) {
-    console.error("Failed to parse AI response:", e);
+    console.error("AI Generation Error:", e);
+    alert(e instanceof Error ? e.message : "Failed to generate new cases. Please check your API key.");
     return INITIAL_CASES;
   }
 };
