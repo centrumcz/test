@@ -36,14 +36,14 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const generateNewCases = async (): Promise<Case[]> => {
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: "Generate 2 unique and diverse patient case studies for a weight management coach. One should be a younger adult and one an older adult. Ensure their lifestyles and goals are realistic and varied.",
+    contents: "Generate 2 unique and diverse patient case studies for a weight management coach. One should be a younger adult and one an older adult. Ensure their lifestyles and goals are realistic and varied. For each, providing a 'photoUrl' that uses 'https://loremflickr.com/600/600/person,portrait,' followed by a specific keyword like 'man-coding' or 'woman-teaching'.",
     config: {
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.ARRAY,
         items: {
           type: Type.OBJECT,
-          required: ["id", "name", "age", "initialWeight", "energy", "mood", "lifestyle", "avatar", "goal"],
+          required: ["id", "name", "age", "initialWeight", "energy", "mood", "lifestyle", "photoUrl", "goal"],
           properties: {
             id: { type: Type.STRING },
             name: { type: Type.STRING },
@@ -52,7 +52,7 @@ const generateNewCases = async (): Promise<Case[]> => {
             energy: { type: Type.NUMBER, description: "0-100 initial energy" },
             mood: { type: Type.NUMBER, description: "0-100 initial mood" },
             lifestyle: { type: Type.STRING },
-            avatar: { type: Type.STRING, description: "A single emoji representing the person" },
+            photoUrl: { type: Type.STRING, description: "URL pointing to a realistic portrait photo" },
             goal: { type: Type.STRING }
           }
         }
@@ -211,7 +211,14 @@ export default function App() {
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform">
                    <Info size={120} />
                 </div>
-                <div className="text-6xl">{c.avatar}</div>
+                <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-md">
+                  <img 
+                    src={c.photoUrl} 
+                    alt={c.name} 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
                 <div className="space-y-2 relative z-10">
                   <h3 className="text-2xl font-bold text-slate-800">{c.name}, {c.age}</h3>
                   <div className="text-xs font-bold text-indigo-600 uppercase tracking-widest">{c.goal}</div>
@@ -250,7 +257,14 @@ export default function App() {
           <div className="space-y-6">
             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Case Profile</div>
             <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl">
-               <div className="text-4xl">{selectedCase.avatar}</div>
+               <div className="w-12 h-12 rounded-xl overflow-hidden shadow-sm border border-white">
+                  <img 
+                    src={selectedCase.photoUrl} 
+                    alt={selectedCase.name} 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+               </div>
                <div>
                   <div className="font-bold text-slate-800">{selectedCase.name}</div>
                   <div className="text-xs text-slate-400">Week {gameState.currentWeek + 1} of 4</div>

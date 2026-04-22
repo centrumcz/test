@@ -6,7 +6,7 @@ export interface Case {
   energy: number; // 0-100
   mood: number; // 0-100
   lifestyle: string;
-  avatar: string;
+  photoUrl: string;
   goal: string;
 }
 

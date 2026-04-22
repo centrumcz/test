@@ -9,7 +9,7 @@ export const CASES: Case[] = [
     energy: 40,
     mood: 50,
     lifestyle: 'Highly sedentary, frequent late-night coding sessions.',
-    avatar: '👨‍💻',
+    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600&h=600',
     goal: 'Weight loss without burning out.'
   },
   {
@@ -20,7 +20,7 @@ export const CASES: Case[] = [
     energy: 20,
     mood: 40,
     lifestyle: 'Full-time teacher and mother of two. Constantly stressed.',
-    avatar: '👩‍🏫',
+    photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600&h=600',
     goal: 'Regain energy and manage weight sustainably.'
   }
 ];
